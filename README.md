@@ -1,1 +1,3 @@
-### This is the code of the paper $\textbf{``A Stabilized Numerical Framework for Necrotic Tumor Growth via Coupled Boundary Integral and Obstacle Solvers''}$.
+# A Stabilized Numerical Framework for Necrotic Tumor Growth
+
+This repository contains the code for the paper *“A Stabilized Numerical Framework for Necrotic Tumor Growth via Coupled Boundary Integral and Obstacle Solvers.”*
