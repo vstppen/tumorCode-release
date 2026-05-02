@@ -17,7 +17,7 @@ Each project contains a `build` directory for out-of-source builds.
 
 ## Requirements
 
-Make sure you have the following tools installed on your `Linux' system:
+Make sure you have the following tools installed on your `Linux` system:
 
 - CMake
   
@@ -29,12 +29,12 @@ Make sure you have the following tools installed on your `Linux' system:
 
 For each project, navigate to its `build` directory and run:
 
-`cmake .. && make -j'
+`cmake .. && make -j`
 
 After building, the executable file will be generated in the `build' directory:
 
-`./test'
+`./test`
 
 ### Note
 
-For each project, data for running './test' will be stored in 'build/result/points' and 'build/result/solutions', and there are several '.ipynb' Python files in 'build' or 'build/result' directory for visualization. 
+For each project, data for running `./test` will be stored in `build/result/points` and `build/result/solutions`, and there are several `.ipynb` Python files in `build` or `build/result` directory for visualization. 
