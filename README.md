@@ -18,7 +18,9 @@ Each project contains a `build` directory for out-of-source builds.
 Make sure you have the following tools installed on your `Linux' system:
 
 - CMake
+  
 - GCC / G++ (or another C++ compiler)
+
 - Make
 
 ## Build Instructions
