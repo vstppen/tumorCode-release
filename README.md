@@ -7,8 +7,10 @@ This repository contains the code for the paper *“A Stabilized Numerical Frame
 This repository contains multiple independent C++ projects. Each project is organized in its own directory and uses CMake for building.
 
 ### Project Structure
-project1/ \\
-project2/ \\
+project1/
+
+project2/ 
+
 project3/
 
 Each project contains a `build` directory for out-of-source builds.
