@@ -31,7 +31,7 @@ For each project, navigate to its `build` directory and run:
 
 `cmake .. && make -j`
 
-After building, the executable file will be generated in the `build' directory:
+After building, the executable file will be generated in the `build` directory:
 
 `./test`
 
