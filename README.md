@@ -35,6 +35,6 @@ After building, the executable file will be generated in the `build' directory:
 
 `./test`
 
-### Note
+## Note
 
 For each project, data for running `./test` will be stored in `build/result/points` and `build/result/solutions`, and there are several `.ipynb` Python files in `build` or `build/result` directory for visualization. 
