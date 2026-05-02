@@ -29,11 +29,11 @@ Make sure you have the following tools installed on your `Linux' system:
 
 For each project, navigate to its `build` directory and run:
 
-cmake .. && make -j
+`cmake .. && make -j'
 
 After building, the executable file will be generated in the build directory:
 
-./test
+`./test'
 
 ### Note
 
