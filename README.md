@@ -7,11 +7,11 @@ This repository contains the code for the paper *“A Stabilized Numerical Frame
 This repository contains multiple independent C++ projects. Each project is organized in its own directory and uses CMake for building.
 
 ### Project Structure
-project1/
+tumorWithoutNecroticCore/
 
-project2/ 
+tumorWithNecroticCore/ 
 
-project3/
+tumorWithNecroticCoreEmergency/
 
 Each project contains a `build` directory for out-of-source builds.
 
@@ -34,3 +34,7 @@ cmake .. && make -j
 After building, the executable file will be generated in the build directory:
 
 ./test
+
+### Note
+
+For each project, data for running `./test' will be stored in `build/result/points' and `build/result/solutions', and there are several `.ipynb' files in `build' or `build/result' directory for visualization. 
