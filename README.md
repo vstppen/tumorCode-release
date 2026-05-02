@@ -31,10 +31,10 @@ For each project, navigate to its `build` directory and run:
 
 `cmake .. && make -j'
 
-After building, the executable file will be generated in the build directory:
+After building, the executable file will be generated in the `build' directory:
 
 `./test'
 
 ### Note
 
-For each project, data for running `./test' will be stored in `build/result/points' and `build/result/solutions', and there are several `.ipynb' files in `build' or `build/result' directory for visualization. 
+For each project, data for running './test' will be stored in 'build/result/points' and 'build/result/solutions', and there are several '.ipynb' Python files in 'build' or 'build/result' directory for visualization. 
