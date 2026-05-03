@@ -64,110 +64,88 @@ void evolveCtrlPointsStrategy2(double** ctrl_points, int& n_ctrl, double** nxny,
 }
 
 
-
-bool reparameterizeCtrlPoints(double** ctrl_points_0, int n_ctrl_0) {
-    const int N = n_ctrl_0;
-    const int K_max = std::min(10, N / 2);     // Maximum number of Fourier modes
-    double best_error = 1.e8;              
+bool reparameterizeCtrlPoints(double** ctrl_points_0, int n_ctrl) {
+    const int N = n_ctrl;
+    const int K_max = std::min(10, N / 2);     
+    
+    int best_K = -1;
+    double best_error = 1e8;              
     std::vector<double> best_a_x, best_b_x, best_a_y, best_b_y;
 
-    // Step 1: Build a closed version of the input points (append the first point to the end)
-    int N_closed = N + 1;
-    std::vector<double> x(N_closed), y(N_closed), t(N_closed);
+    std::vector<double> t(N);
     for (int i = 0; i < N; ++i) {
-        x[i] = ctrl_points_0[i][0];
-        y[i] = ctrl_points_0[i][1];
-        t[i] = 2 * M_PI * i / N;
+        t[i] = 2.0 * M_PI * i / N; 
     }
-    x[N] = ctrl_points_0[0][0];
-    y[N] = ctrl_points_0[0][1];
-    t[N] = 2 * M_PI;
 
-    // Internal lambda: compute error for given K, and also calculate Fourier coefficients
-    auto compute_error_for_K = [&](int K, std::vector<double>& a_x, std::vector<double>& b_x,
-                                   std::vector<double>& a_y, std::vector<double>& b_y) -> double {
-        auto compute_coeffs = [&](const std::vector<double>& f, std::vector<double>& a, std::vector<double>& b) {
-            a.resize(K + 1);
-            b.resize(K + 1);
-            for (int k = 0; k <= K; ++k) {
-                double a_k = 0.0, b_k = 0.0;
-                for (int i = 0; i < N_closed; ++i) {
-                    a_k += f[i] * cos(k * t[i]);
-                    b_k += f[i] * sin(k * t[i]);
-                }
-                a[k] = (k == 0) ? (a_k / N_closed) : (2 * a_k / N_closed);
-                b[k] = (k == 0) ? 0.0 : (2 * b_k / N_closed);
+    // Evaluate all K to find the minimum error
+    for (int K = 1; K <= K_max; ++K) {
+        std::vector<double> a_x(K + 1, 0.0), b_x(K + 1, 0.0);
+        std::vector<double> a_y(K + 1, 0.0), b_y(K + 1, 0.0);
+
+        // Corrected DFT: Integrate from 0 to N-1
+        for (int k = 0; k <= K; ++k) {
+            for (int i = 0; i < N; ++i) {
+                double cos_kt = std::cos(k * t[i]);
+                double sin_kt = std::sin(k * t[i]);
+                a_x[k] += ctrl_points_0[i][0] * cos_kt;
+                b_x[k] += ctrl_points_0[i][0] * sin_kt;
+                a_y[k] += ctrl_points_0[i][1] * cos_kt;
+                b_y[k] += ctrl_points_0[i][1] * sin_kt;
             }
-        };
+            double factor = (k == 0) ? (1.0 / N) : (2.0 / N);
+            a_x[k] *= factor; b_x[k] *= factor;
+            a_y[k] *= factor; b_y[k] *= factor;
+        }
 
-        compute_coeffs(x, a_x, b_x);
-        compute_coeffs(y, a_y, b_y);
-
-        int Ns = 1000;
+        // Compute max error for current K
+        const int Ns = 1000;
         double max_error = 0.0;
-
         for (int i = 0; i < N; ++i) {
             double px = ctrl_points_0[i][0];
             double py = ctrl_points_0[i][1];
             double min_dist = 1e9;
 
             for (int j = 0; j < Ns; ++j) {
-                double tj = 2 * M_PI * j / Ns;
-
+                double tj = 2.0 * M_PI * j / Ns;
                 double X = a_x[0], Y = a_y[0];
                 for (int k = 1; k <= K; ++k) {
-                    X += a_x[k] * cos(k * tj) + b_x[k] * sin(k * tj);
-                    Y += a_y[k] * cos(k * tj) + b_y[k] * sin(k * tj);
+                    X += a_x[k] * std::cos(k * tj) + b_x[k] * std::sin(k * tj);
+                    Y += a_y[k] * std::cos(k * tj) + b_y[k] * std::sin(k * tj);
                 }
-
-                double dx = X - px;
-                double dy = Y - py;
-                double d = std::sqrt(dx * dx + dy * dy);
-                if (d < min_dist) min_dist = d;
+                min_dist = std::min(min_dist, std::hypot(X - px, Y - py));
             }
-
-            max_error = std::max(min_dist, max_error);
+            max_error = std::max(max_error, min_dist);
         }
 
-        return max_error;
-    };
-
-    // Step 2: Automatically choose the best K 
-    int best_K = 1;
-    std::vector<double> a_x, b_x, a_y, b_y;
-    for (int K = 1; K <= K_max; ++K) {
-        double err = compute_error_for_K(K, a_x, b_x, a_y, b_y);
-        if (err < best_error) {
+        // Update best values if error is strictly minimized
+        if (max_error < best_error) {
+            best_error = max_error;
             best_K = K;
-            best_error = err;
-            best_a_x = a_x;
-            best_b_x = b_x;
-            best_a_y = a_y;
-            best_b_y = b_y;
+            best_a_x = a_x; best_b_x = b_x;
+            best_a_y = a_y; best_b_y = b_y;
         }
     }
 
-    // Print the selected K to stdout
     std::cout << "Selected Fourier order K = " << best_K << ", error = " << best_error << std::endl;
 
     if (best_error > 0.1) {
         std::cout << "Failed to reconstruct the inner boundary!" << std::endl;
-        return 0;
+        return false;
     }
 
-    // Step 3: Reconstruct N resampled points on the fitted curve
+    // Reconstruct and uniformly sample N points
     for (int i = 0; i < N; ++i) {
-        double ti = 2 * M_PI * i / N;
+        double ti = 2.0 * M_PI * i / N;
         double xi = best_a_x[0], yi = best_a_y[0];
         for (int k = 1; k <= best_K; ++k) {
-            xi += best_a_x[k] * cos(k * ti) + best_b_x[k] * sin(k * ti);
-            yi += best_a_y[k] * cos(k * ti) + best_b_y[k] * sin(k * ti);
+            xi += best_a_x[k] * std::cos(k * ti) + best_b_x[k] * std::sin(k * ti);
+            yi += best_a_y[k] * std::cos(k * ti) + best_b_y[k] * std::sin(k * ti);
         }
         ctrl_points_0[i][0] = xi;
         ctrl_points_0[i][1] = yi;
     }
 
-    return 1;
+    return true;
 }
 
 
